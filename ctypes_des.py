@@ -28,6 +28,9 @@ libssl.DES_set_key.restype = c_int
 libssl.DES_ncbc_encrypt.argtypes = [c_char_p, c_char_p, c_int, c_void_p, c_char_p, c_int]
 libssl.DES_ncbc_encrypt.restype = None
 
+DES_DECRYPT = 0
+DES_ENCRYPT = 1
+
 def set_key(key):
     keys = DES_key_schedule()
     assert len(key) == 8
@@ -39,8 +42,6 @@ def set_key(key):
     
 
 def _des_encrypt(input, keys, ivec):
-
-    DES_ENCRYPT = 1
 
     ptr_output = create_string_buffer(4096)
     ptr_ivec = create_string_buffer(ivec)
@@ -54,6 +55,19 @@ def _des_encrypt(input, keys, ivec):
     
     return hexoutput
 
+def _des_decrypt(input, keys, ivec):
+    ptr_output = create_string_buffer(4096)
+    ptr_ivec = create_string_buffer(ivec)
+
+    libssl.DES_ncbc_encrypt(input, ptr_output, len(input), addressof(keys), ptr_ivec, DES_DECRYPT)
+    output = ptr_output.value
+
+    pad_len = ord(output[-1])
+    output = output[:len(output) - pad_len]
+    
+    return output
+
+
 GLOBAL_KEYS = None
 GLOBAL_KEY = None
 
@@ -64,6 +78,15 @@ def des_encrypt(input, key, ivec):
         GLOBAL_KEYS = set_key(key)
 
     return _des_encrypt(input, GLOBAL_KEYS, ivec)
+
+def des_decrypt(input, key, ivec):
+    global GLOBAL_KEY, GLOBAL_KEYS
+    if key != GLOBAL_KEY:
+        GLOBAL_KEY = key
+        GLOBAL_KEYS = set_key(key)
+
+    return _des_decrypt(input, GLOBAL_KEYS, ivec)
+
 
 
 def main():
