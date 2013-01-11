@@ -16,7 +16,7 @@ class TestDES(unittest.TestCase):
 
         expected = bin2hex(k.encrypt(sinput))
 
-        from des import des_encrypt
+        from ctypes_des import des_encrypt
 
         real = des_encrypt(sinput, key, ivec)
 

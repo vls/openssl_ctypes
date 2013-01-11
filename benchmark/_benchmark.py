@@ -21,18 +21,18 @@ class Tester():
                 yield phone
 
     def test_openssl_des(self):
-        import des
+        import ctypes_des
         #keys = des.set_key(self._key)
 
         for phone in self._get_phones():
-            print des.des_encrypt(phone, self._key, self._ivec)
+            print ctypes_des.des_encrypt(phone, self._key, self._ivec)
 
     def test_openssl_des_fast(self):
-        import des
-        keys = des.set_key(self._key)
+        import ctypes_des
+        keys = ctypes_des.set_key(self._key)
 
         for phone in self._get_phones():
-            print des._des_encrypt(phone, keys, self._ivec)
+            print ctypes_des._des_encrypt(phone, keys, self._ivec)
 
 
     def test_my_des(self):
